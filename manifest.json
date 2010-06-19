@@ -1,0 +1,15 @@
+{
+  "name":"Chatter Linker",
+  "description":"Displays a count of new chatter and allow you to create link chatter of the current page.",
+  "version":"1.0",
+  "icons":{"128":"icon_128x128.png"},
+  "permissions": [
+    "tabs", "https://*.salesforce.com/", "http://*.salesforce.com/"
+  ],
+  "background_page": "background.html",
+  "browser_action":{ 
+    "default_title": "Chatter this page",
+    "default_icon":"icon_19x19.png",
+    "popup":"popup.html"
+  }
+}  

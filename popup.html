@@ -1,0 +1,93 @@
+<html>
+<head>
+
+<style>
+body { background: url('cloud.png') no-repeat; font-family: Arial, Helvetica, sans-serif; min-width: 435px;}
+h1 { color: #1797C0; font-size: 18px; font-style: normal; margin: 15px 0 9px 9px; }
+label { font-size: 12px; float:left; width:60px; padding-top: 4px; }
+input { border:1px solid #999999; padding: 3px; border-radius: 5px; }
+.textInput { width: 375px; display:block; margin-bottom: 9px; }
+.submit { float: right; color: #FFF; font-weight: bold; width: 64px; border-radius: 15px; -webkit-box-shadow: 0px 1px 7px #1797C0; /*border: 2px solid #BCBCBC;*/ border:2px solid #FFF; background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEE), to(#1797C0)); }
+.toChatter { font-size: 12px; float: right; margin: 0; text-decoration: none; }
+.toChatter:hover { text-decoration: underline; }
+a, a:visited, a:hover { color: #000; }
+</style>
+
+<script>
+  // a popup which gets called and loaded when the user clicks on the browser action icon.
+  window.onload = chrome.tabs.getSelected(null, function(tab) {	
+    document.getElementById("urlName").value = tab.title;
+    document.getElementById("url").value = tab.url;
+  });
+</script>
+
+</head>
+<body>
+
+  <a href="#" class="toChatter" onclick="goToChatter()">Home</a>
+  <h1>Salesforce Chatter</h1>
+  <form action="https://na7.salesforce.com/chatter/handlers" method="POST">
+    <label>Message</label>
+    <input type="text" value="Check out this page I found." id="text" class="textInput" />
+
+    <label>Url</label>
+    <input type="text" id="url" class="textInput" />
+
+    <label>Url Title</label>
+    <input type="text" id="urlName" class="textInput" />
+
+    <input type="button" value="Share" class="submit" onclick="sendChatter()"/>
+  </form>
+  <div style="clear:both;"> </div>
+
+
+<script src="connection.js" type="text/javascript"></script>
+<script type="text/javascript">	
+  // do the Salesforce.com AJAX API connection
+  var result = sforce.connection.login("<username>", "<password><security token>");
+
+  function sendChatter(){    
+    var linkPost = new sforce.SObject("FeedPost");
+    linkPost.ParentId = result.userId;
+    linkPost.Body = document.getElementById("text").value;
+    linkPost.Title = document.getElementById("urlName").value;
+    linkPost.LinkURL = document.getElementById("url").value;
+    linkPost.Type = 'LinkPost';
+
+    sforce.connection.create([linkPost], {onSuccess : success, onFailure : alert});
+
+    function success(result) { 
+      window.close();
+    } 
+  }
+  
+  function getSalesforceHomeUrl() {
+    return "https://na7.salesforce.com/home/home.jsp";
+  }
+
+  function isSalesforceUrl(url) {
+    // This is the Gmail we're looking for if:
+    // - starts with the correct gmail url
+    // - doesn't contain any other path chars
+    var salesforce = getSalesforceHomeUrl();
+    if (url.indexOf(salesforce) != 0)
+      return false;
+
+    return true;
+  }
+  
+  function goToChatter() {
+    chrome.tabs.getAllInWindow(undefined, function(tabs) {
+      for (var i = 0, tab; tab = tabs[i]; i++) {
+        if (tab.url && isSalesforceUrl(tab.url)) {
+          chrome.tabs.update(tab.id, {selected: true});
+          return;
+        }
+      }
+      chrome.tabs.create({url: getSalesforceHomeUrl()});
+    });
+  }
+</script>
+
+</body>
+</html>
