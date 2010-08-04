@@ -16,11 +16,11 @@ var unreadCount = -1;
 var loadingAnimation = new LoadingAnimation();
 
 // SalesForce Connection
-var tempResult = sforce.connection.login("<username>", "<password><security token>");
+var tempResult = sforce.connection.login(localStorage.username, localStorage.password + localStorage.securityToken);
 var currentUserId = tempResult.userId;
 
 // A "loading" animation displayed while we wait for the first response from
-// Gmail. This animates the badge text with a dot that cycles from left to
+// Salesforce. This animates the badge text with a dot that cycles from left to
 // right.
 function LoadingAnimation() {
   this.timerId_ = 0;
@@ -63,7 +63,7 @@ LoadingAnimation.prototype.stop = function() {
 
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
-  if (changeInfo.url && isGmailUrl(changeInfo.url)) {
+  if (changeInfo.url && isSalesforceUrl(changeInfo.url)) {
     getInboxCount(function(count) {
       updateUnreadCount(count);
     });
@@ -80,9 +80,12 @@ function init() {
   chrome.browserAction.setIcon({path: "icon_19x19.png"});
   loadingAnimation.start();
 
+  checkTime();
+
   startRequest();
 }
 
+// defines how often to ping salesforce for new chanter information
 function scheduleRequest() {
   var randomness = Math.random() * 2;
   var exponent = Math.pow(2, requestFailureCount);
@@ -93,7 +96,7 @@ function scheduleRequest() {
   window.setTimeout(startRequest, delay);
 }
 
-// ajax stuff
+// queries Salesforce for the current chatter count for the time interval and updates the number on the icon
 function startRequest() {
   getInboxCount(
     function(count) {
@@ -104,20 +107,14 @@ function startRequest() {
   );
 }
 
+// queries salesforce for the current chatter count since last time to homepage via chatter extension
 function getInboxCount(onSuccess) {
-  var currentTime = sforce.connection.getServerTimestamp(); 
+  var query = sforce.connection.query("SELECT COUNT() FROM NewsFeed WHERE CreatedDate > " + localStorage.lastTime + " AND ParentId != '" + currentUserId + "'");
   
-  var curDateTime = currentTime.timestamp;
-  var hour = curDateTime.substring(11,13);
-  hour--;
-  var newDateTime = curDateTime.substring(0,11) + (hour < 10 ? '0' : '') + hour + curDateTime.substring(13);
-
-  var query = sforce.connection.query("SELECT COUNT() FROM NewsFeed WHERE CreatedDate > " + newDateTime + " AND ParentId != '" + currentUserId + "'");
-
   onSuccess(query.size);
 }
 
-
+// updates the count with the new information
 function updateUnreadCount(count) {
   if (unreadCount != count) {
     unreadCount = count;
@@ -161,6 +158,20 @@ function drawIconAtRotation() {
   chrome.browserAction.setIcon({imageData:canvasContext.getImageData(0, 0,
       canvas.width,canvas.height)});
 }
+
+// when it starts check the time
+function checkTime() {
+  if( !localStorage.lastTime )
+    localStorage.lastTime = sforce.connection.getServerTimestamp().timestamp;
+}
+
+// When the popup is clicked reset the time and reload the count
+function updateTime() {
+  localStorage.lastTime = sforce.connection.getServerTimestamp().timestamp;
+
+  loadingAnimation.start();
+  startRequest();
+}
 </script>
 </head>
 <body onload="init()">
@@ -168,4 +179,3 @@ function drawIconAtRotation() {
 <canvas id="canvas" width="19" height="19">
 </body>
 </html>
-

@@ -1,0 +1,85 @@
+<html>
+<head>
+<title>Chatter Linker - Options</title>
+<style>
+body { font-family:helvetica, arial, sans-serif; font-size:80%; margin:10px; }
+#header { padding-bottom:1.5em; padding-top:1.5em; }
+#header h1 { font-size: 156%; display:inline; padding-bottom:43px; padding-left:75px; padding-top:40px; background:url(icon_128x128.png) no-repeat; background-size:67px; background-position:1px 18px; }
+.section-header { background:#ebeff9; border-top:1px solid #b5c7de; font-size:99%; padding:3px 0 2px 5px; font-weight:bold; margin-bottom:1em; margin-top:4em; }
+.section-header.first { margin-top:1em; }
+#custom-domain { width:300px; margin-left:2px; }
+input { border:1px solid #999999; padding: 3px; border-radius: 5px; }
+.textInput { width: 375px; display:block; margin-bottom: 9px; }
+.submit { width: 64px; }
+#footer { margin-top:4em; }
+</style>
+</head>
+<body>
+
+<div id="header"><h1>Chatter Linker Options</h1></div>
+
+<div class="section-header first">Salesforce.com Login Info</div>
+    <label>UserName</label>
+    <input type="text" id="username" class="textInput" oninput="markDirty()" />
+
+    <label>Password</label>
+    <input type="password" id="password" class="textInput" oninput="markDirty()" />
+
+    <label>Security Token</label>
+    <input type="text" id="securityToken" class="textInput" oninput="markDirty()" />
+
+<div class="section-header first">Salesforce.com Chatter Home/Feed URL</div>
+
+    <label>URL</label>
+    <input type="text" id="url" class="textInput" oninput="markDirty()" />
+
+<div id="footer">
+  <button id="save-button" class="submit" style="font-weight:bold" onclick="save()"
+    >Save</button>
+  <button onclick="init()">Cancel</button>
+</div>
+
+<script>
+var customDomainsTextbox;
+var saveButton;
+
+init();
+
+// populates the form with values from the browsers DB
+function init() {
+  customUsernameTextbox = document.getElementById("username");
+  customPasswordTextbox = document.getElementById("password");
+  customSecurityTokenTextbox = document.getElementById("securityToken");
+  customUrlTextbox = document.getElementById("url");
+  saveButton = document.getElementById("save-button");
+
+  customUsernameTextbox.value = localStorage.username || "";
+  customPasswordTextbox.value = localStorage.password || "";
+  customSecurityTokenTextbox.value = localStorage.securityToken || "";
+  customUrlTextbox.value = localStorage.url || "https://na7.salesforce.com/home/home.jsp";
+  markClean();
+}
+
+// saves the form value to the browsers DB
+function save() {
+  localStorage.username = customUsernameTextbox.value;
+  localStorage.password = customPasswordTextbox.value;
+  localStorage.securityToken = customSecurityTokenTextbox.value;
+  localStorage.url = customUrlTextbox.value;
+  markClean();
+
+  chrome.extension.getBackgroundPage().init();
+}
+
+// turn on and off the save button when the user changes values
+function markDirty() {
+  saveButton.disabled = false;
+}
+
+// turn on and off the save button when the user changes values
+function markClean() {
+  saveButton.disabled = true;
+}
+</script>
+</body>
+</html>

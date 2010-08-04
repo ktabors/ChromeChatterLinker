@@ -1,7 +1,7 @@
 {
   "name":"Chatter Linker",
-  "description":"Displays a count of new chatter and allow you to create link chatter of the current page.",
-  "version":"1.0",
+  "description":"Create a Chatter link of the current page and displays a count of new data to your feedpost.",
+  "version":"1.1",
   "icons":{"128":"icon_128x128.png"},
   "permissions": [
     "tabs", "https://*.salesforce.com/", "http://*.salesforce.com/"
@@ -11,5 +11,6 @@
     "default_title": "Chatter this page",
     "default_icon":"icon_19x19.png",
     "popup":"popup.html"
-  }
+  },
+  "options_page": "options.html"
 }  

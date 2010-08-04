@@ -13,22 +13,24 @@ input { border:1px solid #999999; padding: 3px; border-radius: 5px; }
 a, a:visited, a:hover { color: #000; }
 </style>
 
-<script>
+<script src="connection.js" type="text/javascript"></script>
+<script type="text/javascript">
   // a popup which gets called and loaded when the user clicks on the browser action icon.
   window.onload = chrome.tabs.getSelected(null, function(tab) {	
     document.getElementById("urlName").value = tab.title;
     document.getElementById("url").value = tab.url;
   });
+
 </script>
 
 </head>
 <body>
 
   <a href="#" class="toChatter" onclick="goToChatter()">Home</a>
-  <h1>Salesforce Chatter</h1>
+  <h1>Chatter Linker</h1>
   <form action="https://na7.salesforce.com/chatter/handlers" method="POST">
     <label>Message</label>
-    <input type="text" value="Check out this page I found." id="text" class="textInput" />
+    <input type="text" value="posted a new link." id="text" class="textInput" />
 
     <label>Url</label>
     <input type="text" id="url" class="textInput" />
@@ -36,15 +38,14 @@ a, a:visited, a:hover { color: #000; }
     <label>Url Title</label>
     <input type="text" id="urlName" class="textInput" />
 
-    <input type="button" value="Share" class="submit" onclick="sendChatter()"/>
+    <input type="button" value="Share" class="submit" onclick="sendChatter();"/>
   </form>
   <div style="clear:both;"> </div>
-
-
-<script src="connection.js" type="text/javascript"></script>
+  
 <script type="text/javascript">	
+  
   // do the Salesforce.com AJAX API connection
-  var result = sforce.connection.login("<username>", "<password><security token>");
+  var result = sforce.connection.login(localStorage.username, localStorage.password + localStorage.securityToken);
 
   function sendChatter(){    
     var linkPost = new sforce.SObject("FeedPost");
@@ -62,13 +63,10 @@ a, a:visited, a:hover { color: #000; }
   }
   
   function getSalesforceHomeUrl() {
-    return "https://na7.salesforce.com/home/home.jsp";
+    return localStorage.url;
   }
 
   function isSalesforceUrl(url) {
-    // This is the Gmail we're looking for if:
-    // - starts with the correct gmail url
-    // - doesn't contain any other path chars
     var salesforce = getSalesforceHomeUrl();
     if (url.indexOf(salesforce) != 0)
       return false;
@@ -76,6 +74,7 @@ a, a:visited, a:hover { color: #000; }
     return true;
   }
   
+  // Find an open tab to the salesforce URL or open a tab to that URL
   function goToChatter() {
     chrome.tabs.getAllInWindow(undefined, function(tabs) {
       for (var i = 0, tab; tab = tabs[i]; i++) {
@@ -86,6 +85,7 @@ a, a:visited, a:hover { color: #000; }
       }
       chrome.tabs.create({url: getSalesforceHomeUrl()});
     });
+    chrome.extension.getBackgroundPage().updateTime();
   }
 </script>
 

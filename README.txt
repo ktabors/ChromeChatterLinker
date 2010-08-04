@@ -5,13 +5,11 @@ Kyle Taborski
 
 This was created for a demo and is therefore not a complete extension. It was developed prior to the release of chatter.
 
-To get it to work edit both the background.html and popup.html to have your Salesforce.com's username, password, and security token. You'll also need to customize the URL in popup.html for the home link.
+Changes v1.1 - These changes were done during a hackathon for a different extension and were encorperated into this extension with limited testing.
+- Added an options page to input username, password, securityToken, and url. URL has a default value. All values are stored in plain text in the browser DB.
+- Changed the Chatter count to set the time first used and the count is based off of all posts since that time. That time is updated when the user uses the extension to goto the chatter homepage.
 
-Areas in need of immediate improvement:
-- Fix the math related to the getting followers chatter in the last hour.
-- Add an options page for entering username, password, security token, and customizable URL.
-
-Nice features to add:
-- Allow the user to define the time period for follower chatter.
-- Show any company chatter about the link you're about to share.
-- Define state for the chatter count, something like all chatter since opening, last time the home link was clicked, or last time the home URL was visited.
+Suggested Improvements
+- Adding existing chatter about the page being shared in the popup below the form.
+- On the options page allow the user to change the URL the popup form submits to.
+- Finishing touches like on the popup page telling the user they need to set their username and password before it will work and warning the user on the options page that the password is stored in plain text in the browser DB.
